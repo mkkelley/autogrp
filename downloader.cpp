@@ -1,3 +1,4 @@
+#include "downloader.h"
 
 #include <curl/curl.h>
 #include <string>
@@ -27,7 +28,8 @@ std::vector<std::string> get_directory_contents(const std::string& path) {
     return out;
 }
 
-void download_missing_games(const std::string& player_id, const std::string& game_dir_path) {
+std::vector<std::string> download_missing_games(const std::string& player_id, const std::string& game_dir_path) {
+    std::vector<std::string> new_files;
     auto directory_contents = get_directory_contents(game_dir_path);
     directory_contents.erase(std::remove_if(directory_contents.begin(), directory_contents.end(),
                                             [](const std::string& filename) { return filename.find(".sgf") == std::string::npos;}),
@@ -44,7 +46,6 @@ void download_missing_games(const std::string& player_id, const std::string& gam
         std::cout << "Searching for new games in: " << current_page * 10 + 1 << " to " << (current_page + 1) * 10 << std::endl;
         std::string data;
         curl_easy_setopt(handle, CURLOPT_URL, next_url.c_str());
-//        curl_easy_setopt(handle, CURLOPT_VERBOSE, TRUE);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, FALSE);
 
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, partial_save_result);
@@ -82,9 +83,12 @@ void download_missing_games(const std::string& player_id, const std::string& gam
             curl_easy_setopt(handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
             curl_easy_perform(handle);
             curl_easy_reset(handle);
-            std::ofstream newsgf(game_dir_path + "/" + id + ".sgf", std::ios::binary);
+
+            std::string new_file_path = game_dir_path + "/" + id + ".sgf";
+            std::ofstream newsgf(new_file_path, std::ios::binary);
             newsgf.write(data.c_str(), data.size());
             newsgf.close();
+            new_files.push_back(new_file_path);
             Sleep(2000);
         }
         ++current_page;
@@ -93,11 +97,11 @@ void download_missing_games(const std::string& player_id, const std::string& gam
 
     curl_easy_cleanup(handle);
 //    std::cout << data << std::endl;
-
+    return new_files;
 }
 
-int main(int, char**) {
-    download_missing_games("504897", "C:/users/purti/documents/go/ogsgames");
+//int main(int, char**) {
+//    download_missing_games("504897", "C:/users/purti/documents/go/ogsgames");
 //    get_directory_contents("C:/users/purti/documents/go/ogsgames");
-    return 0;
-}
+//    return 0;
+//}

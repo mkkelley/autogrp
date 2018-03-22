@@ -16,7 +16,7 @@ link_directories( C:/lib/curl2/lib )
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
 
 add_executable(autogrp main.cpp)
-add_executable(downloader downloader.cpp)
+add_library(downloader downloader.cpp)
 
 target_include_directories(autogrp PUBLIC SimpleAmqpClient-master/src ${Boost_INCLUDE_DIR} )
 target_link_libraries(autogrp LINK_PUBLIC SimpleAmqpClient rabbitmq ${Boost_LIBRARIES} )
