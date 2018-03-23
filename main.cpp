@@ -45,7 +45,9 @@ int main() {
     INIReader reader("config.ini");
     std::string player_id = reader.Get("core", "ogs_id", "");
     std::string game_dir = reader.Get("core", "games_dir", "");
-    if (player_id.empty() || game_dir.empty()) return 1;
+    std::string python_exe_path = reader.Get("core", "python_exe_path", "");
+    std::string analysis_path = reader.Get("core", "grp_analyze_path_flags", "");
+    if (player_id.empty() || game_dir.empty() || python_exe_path.empty() || analysis_path.empty()) return 1;
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
     t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, player_id, game_dir));
@@ -65,9 +67,8 @@ int main() {
         work_queue_mutex.unlock();
 
         std::cout << get_timestamp() << " Starting to process: " << filename;
-        boost::process::child analysis("C:/Anaconda3/envs/py27/python.exe",
-                                       "C:/Users/purti/documents/go/goreviewpartner-master/leela_analysis.py",
-                                       "--no-gui",
+        boost::process::child analysis(python_exe_path,
+                                       analysis_path,
                                        filename);
         analysis.wait();
         analysis.terminate();
