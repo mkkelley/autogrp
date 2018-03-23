@@ -8,7 +8,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <rapidjson/document.h>
-#include "windows.h"
 
 size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata) {
     auto* whole_result = reinterpret_cast<std::string*>(userdata);

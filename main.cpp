@@ -4,8 +4,12 @@
 #include <boost/thread.hpp>
 #include "SimpleAmqpClient/SimpleAmqpClient.h"
 #include "windows.h"
+#include "downloader.h"
+#include "INIReader.h"
 
 bool keep_running = true;
+std::vector<std::string> work_queue;
+boost::mutex work_queue_mutex;
 
 bool CtrlHandler(DWORD fdwCtrlType) {
     if (fdwCtrlType == CTRL_C_EVENT) {
@@ -27,24 +31,28 @@ std::string get_timestamp() {
     return std::string(timestamp);
 }
 
-void run_downloader(const boost::system::error_code& e) {
+void run_downloader(const boost::system::error_code& e, const std::string& player_id, const std::string& games_dir) {
     if (!keep_running) return;
-
     std::cout << get_timestamp() << " Running downloader\n";
-    boost::process::child downloader(boost::process::search_path("python.exe"),
-                                     "C:/Users/purti/documents/go/download_ogs_games.py");
-    downloader.wait();
-    downloader.terminate();
+    std::vector<std::string> new_games = download_missing_games(player_id, games_dir);
+    work_queue_mutex.lock();
+    work_queue.reserve(work_queue.size() + new_games.size());
+    work_queue.insert(work_queue.end(), new_games.begin(), new_games.end());
+    work_queue_mutex.unlock();
 }
 
 int main() {
     SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(CtrlHandler), true);
+    INIReader reader("config.ini");
+    std::string player_id = reader.Get("core", "ogs_id", "");
+    std::string game_dir = reader.Get("core", "games_dir", "");
+    if (player_id.empty() || game_dir.empty()) return 1;
     AmqpClient::Channel::ptr_t cxn = AmqpClient::Channel::Create("localhost");
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
-    t.async_wait(&run_downloader);
+    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, player_id, game_dir));
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
-    run_downloader(boost::system::error_code());
+    run_downloader(boost::system::error_code(), player_id, game_dir);
 
     while (keep_running) {
         std::string consumer_tag = cxn->BasicConsume("games", "");

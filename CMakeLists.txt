@@ -19,7 +19,7 @@ add_executable(autogrp main.cpp)
 add_library(downloader downloader.cpp)
 
 target_include_directories(autogrp PUBLIC SimpleAmqpClient-master/src ${Boost_INCLUDE_DIR} )
-target_link_libraries(autogrp LINK_PUBLIC SimpleAmqpClient rabbitmq ${Boost_LIBRARIES} )
+target_link_libraries(autogrp LINK_PUBLIC downloader SimpleAmqpClient rabbitmq ${Boost_LIBRARIES} )
 
 find_library(curl libcurl.a)
 target_link_libraries(downloader LINK_PUBLIC curl ${Boost_LIBRARIES} )
