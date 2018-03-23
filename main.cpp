@@ -69,6 +69,7 @@ int main() {
         std::cout << get_timestamp() << " Starting to process: " << filename;
         boost::process::child analysis(python_exe_path,
                                        analysis_path,
+                                       "--no-gui",
                                        filename);
         analysis.wait();
         analysis.terminate();
