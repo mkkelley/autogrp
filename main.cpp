@@ -2,7 +2,6 @@
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "SimpleAmqpClient/SimpleAmqpClient.h"
 #include "windows.h"
 #include "downloader.h"
 #include "INIReader.h"
@@ -47,7 +46,6 @@ int main() {
     std::string player_id = reader.Get("core", "ogs_id", "");
     std::string game_dir = reader.Get("core", "games_dir", "");
     if (player_id.empty() || game_dir.empty()) return 1;
-    AmqpClient::Channel::ptr_t cxn = AmqpClient::Channel::Create("localhost");
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
     t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, player_id, game_dir));
@@ -55,16 +53,17 @@ int main() {
     run_downloader(boost::system::error_code(), player_id, game_dir);
 
     while (keep_running) {
-        std::string consumer_tag = cxn->BasicConsume("games", "");
-        AmqpClient::Envelope::ptr_t envelope;
-        cxn->BasicConsumeMessage(consumer_tag, envelope, 1000);
-        if (!envelope) {
-            cxn->BasicCancel(consumer_tag);
+        work_queue_mutex.lock();
+        if (work_queue.empty()) {
+            work_queue_mutex.unlock();
+            Sleep(1000);
             continue;
         }
 
-        cxn->BasicAck(envelope);
-        std::string filename = envelope->Message()->Body();
+        std::string filename = work_queue[0];
+        work_queue.erase(work_queue.begin());
+        work_queue_mutex.unlock();
+
         std::cout << get_timestamp() << " Starting to process: " << filename;
         boost::process::child analysis("C:/Anaconda3/envs/py27/python.exe",
                                        "C:/Users/purti/documents/go/goreviewpartner-master/leela_analysis.py",
