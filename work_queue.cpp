@@ -50,3 +50,10 @@ BOT bot_from_string(const std::string& bot_name) {
         return BOT::LEELA;
     }
 }
+
+std::string string_from_bot(BOT bot) {
+    switch (bot) {
+        case BOT::LEELA_ZERO: return "leela_zero";
+        default: return "leela";
+    }
+}
