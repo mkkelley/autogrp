@@ -31,6 +31,7 @@ std::vector<std::string> get_directory_contents(const std::string& path) {
 std::vector<std::string> download_missing_games(INIReader* config) {
     std::string player_id = config->Get("core", "ogs_id", "");
     std::string game_dir = config->Get("core", "games_dir", "");
+    int start_page = config->GetInteger("core", "start_page", 1);
     if (player_id.empty() || game_dir.empty()) exit(1);
     std::vector<std::string> new_files;
     auto directory_contents = get_directory_contents(game_dir);
@@ -41,9 +42,9 @@ std::vector<std::string> download_missing_games(INIReader* config) {
                    [](std::string filename) -> std::string { return filename.substr(0, filename.size() - 4);}
     );
     auto handle = curl_easy_init();
-    std::string next_url = "https://online-go.com/api/v1/players/" + player_id + "/games";
+    std::string next_url = "https://online-go.com/api/v1/players/" + player_id + "/games?page=" + std::to_string(start_page);
     bool has_next = true;
-    int current_page = 0;
+    int current_page = start_page - 1;
 
     while (has_next) {
         std::cout << "Searching for new games in: " << current_page * 10 + 1 << " to " << (current_page + 1) * 10 << std::endl;
