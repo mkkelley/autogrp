@@ -22,6 +22,7 @@ struct work_client {
     ~work_client();
 
     std::optional<JobInfo> get_job();
+    void do_job(const JobInfo& job_info);
     void submit_job(const JobInfo& job_info);
 
 private:

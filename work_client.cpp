@@ -5,8 +5,10 @@
 #include "work_client.h"
 
 #include <fstream>
+#include <iostream>
 #include <curl/curl.h>
 #include <INIReader.h>
+#include <boost/process/child.hpp>
 #include "downloader.h"
 
 
@@ -24,12 +26,6 @@ size_t parse_job_info(char* ptr, size_t size, size_t nmemb, void* userdata) {
         job_info->filename = job_info->server_save_location.substr(filename_start);
     }
     return size * nmemb;
-}
-
-size_t write_rsgf(char* buffer, size_t size, size_t nitems, void* userdata) {
-    auto* rsgf = reinterpret_cast<std::ifstream*>(userdata);
-    rsgf->read(buffer, size * nitems);
-    return static_cast<size_t>(rsgf->gcount());
 }
 
 work_client::work_client(INIReader* config) :
@@ -89,11 +85,34 @@ void work_client::submit_job(const JobInfo& job_info) {
     curl_easy_setopt(handle, CURLOPT_URL, submit_url.c_str());
     curl_easy_setopt(handle, CURLOPT_POST, 1);
     curl_easy_setopt(handle, CURLOPT_POSTFIELDS, rsgf.c_str());
-//    curl_easy_setopt(handle, CURLOPT_READFUNCTION, write_rsgf);
-//    curl_easy_setopt(handle, CURLOPT_READDATA, &rsgf);
     curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_perform(handle);
     curl_slist_free_all(headers);
 
+}
+
+void work_client::do_job(const JobInfo& job_info) {
+    std::string analysis_path;
+    switch (job_info.bot) {
+        case BOT::LEELA_ZERO:
+            analysis_path = config->Get("client", "leela_zero_path", "");
+        default:
+            analysis_path = config->Get("client", "leela_path", "");
+    }
+    if (analysis_path.empty()) {
+        std::cout << "Bot " << string_from_bot(job_info.bot) << " path not set. Please set in client_config.ini\n";
+        return;
+    }
+    std::string python_path = config->Get("client", "python_path", "");
+    if (python_path.empty()) {
+        std::cout << "Python path not set. Please set in client_config.ini\n";
+    }
+
+    boost::process::child analysis(python_path,
+                                   analysis_path,
+                                   "--no-gui",
+                                   job_info.client_save_location);
+    analysis.wait();
+    analysis.terminate();
 }
