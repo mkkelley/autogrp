@@ -2,3 +2,4 @@
 /.idea
 /cmake-build-debug
 /config.ini
+/client_config.ini

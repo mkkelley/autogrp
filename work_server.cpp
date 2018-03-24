@@ -8,6 +8,7 @@
 #define RESTINIO_USE_BOOST_ASIO shared
 #include <restinio/all.hpp>
 #include <fstream>
+#include <boost/thread.hpp>
 
 #include "work_queue.h"
 
@@ -33,24 +34,24 @@ void start_server_impl(INIReader* config) {
                                         auto job = job_opt.value();
                                         auto sendfile = restinio::sendfile(job.first);
                                         sendfile.offset_and_size(0);
-                                        std::string local_save_location = job.first.substr(0, job.first.size() - 4);
-                                        local_save_location.append("_").append(string_from_bot(job.second)).append(".rsgf");
+                                        std::string server_save_location = job.first.substr(0, job.first.size() - 4);
+                                        server_save_location.append("_").append(string_from_bot(job.second)).append(".rsgf");
 
                                         return request->create_response()
                                                 .append_header(restinio::http_field::server, "AutoGRP Job Server")
                                                 .append_header_date_field()
                                                 .append_header("analysis_bot", string_from_bot(job.second))
-                                                .append_header("local_save_location", local_save_location)
+                                                .append_header("server_save_location", server_save_location)
                                                 .set_body(std::move(sendfile))
                                                 .done();
                                     }
                                 }
                                 if (request->header().method() == restinio::http_method_post() &&
                                     request->header().request_target() == "/submit_job" ) {
-                                    if (!request->header().has_field("local_save_location")) {
+                                    if (!request->header().has_field("server_save_location")) {
                                         return restinio::request_rejected();
                                     }
-                                    std::string save_path = request->header().get_field("local_save_location");
+                                    std::string save_path = request->header().get_field("server_save_location");
                                     if (save_path.find(".rsgf") == std::string::npos) {
                                         return restinio::request_rejected();
                                     }
@@ -69,8 +70,13 @@ void start_server_impl(INIReader* config) {
     );
 }
 
-void start_server(INIReader* config) {
+void start_server_impl_c(INIReader* config) {
     start_server_impl<restinio::default_traits_t>(config);
+}
+
+void start_server(INIReader* config) {
+//    start_server_impl<restinio::default_traits_t>(config);
+    boost::thread server_thread(boost::bind(start_server_impl_c, config));
 }
 
 
