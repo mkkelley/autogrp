@@ -2,7 +2,6 @@
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "windows.h"
 #include "downloader.h"
 #include "INIReader.h"
 #include "work_queue.h"
@@ -12,13 +11,11 @@
 
 bool keep_running = true;
 
-bool CtrlHandler(DWORD fdwCtrlType) {
-    if (fdwCtrlType == CTRL_C_EVENT) {
-        keep_running = false;
+void ctrl_handler(const boost::system::error_code& e, int signal_number) {
+    if (e) return;
+    if (signal_number == SIGINT || signal_number == SIGTERM) {
         std::cout << "Stopping. Please wait up to one second or until the current job is finished.\n";
-        return true;
-    } else {
-        return false;
+        keep_running = false;
     }
 }
 
@@ -47,12 +44,13 @@ void run_downloader(const boost::system::error_code& e, INIReader* config) {
 }
 
 int main() {
-    SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(CtrlHandler), true);
     INIReader reader("config.ini");
     INIReader client_config("client_config.ini");
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
     t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &reader));
+    boost::asio::signal_set signals(io, SIGINT, SIGTERM);
+    signals.async_wait(ctrl_handler);
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
     run_downloader(boost::system::error_code(), &reader);
     auto server_thread = start_server(&reader);
