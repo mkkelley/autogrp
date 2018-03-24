@@ -1,0 +1,24 @@
+# Note: Directories should be specified with /, not \.
+# Leave off the ending /
+# If there are spaces in the path of anything, I make no promises about the program working
+
+[server]
+
+# Address of the autogrp server. Change only if it is running on a separate
+# computer than the client
+address = localhost
+
+# Port of the autogrp server. Must match port in server settings.
+port = 18185
+
+[client]
+
+# working directory for client program
+temp_sgf_path = C:/temp/autogrp
+
+# path to python2 executable
+python_path = C:/python/python.exe
+
+# Path to GoReviewPartner analysis script
+leela_path = C:/go/goreviewpartner/leela_analysis.py
+leela_zero_path = ...

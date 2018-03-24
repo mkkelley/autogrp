@@ -1,0 +1,36 @@
+# Note: Directories should be specified with /, not \.
+# Leave off the ending /
+# If there are spaces in the path of anything, I make no promises about the program working
+
+[core]
+
+# found in the url of profile page http://online-go.com/user/view/??????
+ogs_id = 000000
+
+# Place to download sgf files and keep rsgf files
+games_dir = C:/go/games
+
+# Allows skipping old games. Might have to play around with it a little, but
+# generally a number that is 2 less than the highest page in the game history
+# section of ogs profile page is a good place to start. Starts from 1, not 0
+start_page = 1
+
+# Space-separated list of bots, autogrp will analyze each game with every bot
+# on the list.
+# Currently only leela and leela_zero are accepted
+# in the future, will also take ray aq gnu_go
+bots_to_use = leela leela_zero
+
+# Whether or not to run a worker thread on the server machine.
+# For most users, keep this as true
+# If the machine running autogrp isn't capable of reasonable analysis,
+# but other machines are subscribed to the server, it might be reasonable
+# to set this to false
+run_local_work = true
+
+[server]
+
+# Port on which REST server will run
+port = 18185
+# Address to bind. localhost is correct for the majority of cases
+address = localhost

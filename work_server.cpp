@@ -18,7 +18,6 @@ void start_server_impl(INIReader* config) {
     restinio::run(
             restinio::on_thread_pool<ServerTraits>(pool_size)
                     .port(config->GetInteger("server", "port", 18185))
-                    .address(config->Get("server", "address", "localhost"))
                     .concurrent_accepts_count(pool_size)
                     .request_handler(
                             [&](auto request) {
@@ -75,7 +74,6 @@ void start_server_impl_c(INIReader* config) {
 }
 
 std::unique_ptr<boost::thread> start_server(INIReader* config) {
-//    start_server_impl<restinio::default_traits_t>(config);
     return std::make_unique<boost::thread>(boost::bind(start_server_impl_c, config));
 }
 
