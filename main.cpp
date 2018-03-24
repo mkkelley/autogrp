@@ -26,7 +26,24 @@ void run_downloader(const boost::system::error_code& e, INIReader* config) {
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
     std::vector<std::string> new_games = download_missing_games(config);
-    add_to_queue(new_games);
+    std::vector<std::string> bot_strings;
+    std::string botconfig = config->Get("core", "bots_to_use", "leela");
+    boost::split(bot_strings, botconfig, boost::is_any_of(" \t"), boost::token_compress_on);
+    std::vector<BOT> bots_to_use;
+    for (const auto& bot_string : bot_strings) {
+        bots_to_use.push_back(bot_from_string(bot_string));
+    }
+    auto last = std::unique(bots_to_use.begin(), bots_to_use.end());
+    bots_to_use.erase(last, bots_to_use.end());
+
+    //constructing jobs outside so that we can use add to queue collection version instead of calling lock games*bots times
+    std::vector<std::pair<std::string, BOT>> jobs;
+    for (const auto& game : new_games) {
+        for (BOT bot : bots_to_use) {
+            jobs.emplace_back(game, bot);
+        }
+    }
+    add_to_queue(jobs);
 }
 
 int main() {
@@ -39,7 +56,6 @@ int main() {
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
     run_downloader(boost::system::error_code(), &reader);
     auto server_thread = start_server(&reader);
-    server_thread->join();
 
     if (reader.GetBoolean("core", "run_local_worker", true)) {
         work_client c(&client_config);
@@ -54,6 +70,8 @@ int main() {
 
             c.do_job(job);
         }
+    } else {
+        server_thread->join();
     }
 
     t.cancel();
