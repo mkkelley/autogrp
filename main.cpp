@@ -38,18 +38,22 @@ int main() {
     t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &reader));
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
     run_downloader(boost::system::error_code(), &reader);
-    start_server(&reader);
-    work_client c(&client_config);
+    auto server_thread = start_server(&reader);
+    server_thread->join();
 
-    while (keep_running) {
-        auto opt_job = c.get_job();
-        if (!opt_job.has_value()) {
-            Sleep(1000);
-            continue;
+    if (reader.GetBoolean("core", "run_local_worker", true)) {
+        work_client c(&client_config);
+
+        while (keep_running) {
+            auto opt_job = c.get_job();
+            if (!opt_job.has_value()) {
+                Sleep(1000);
+                continue;
+            }
+            auto job = opt_job.value();
+
+            c.do_job(job);
         }
-        auto job = opt_job.value();
-
-        c.do_job(job);
     }
 
     t.cancel();

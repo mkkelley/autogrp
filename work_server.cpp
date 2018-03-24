@@ -74,9 +74,9 @@ void start_server_impl_c(INIReader* config) {
     start_server_impl<restinio::default_traits_t>(config);
 }
 
-void start_server(INIReader* config) {
+std::unique_ptr<boost::thread> start_server(INIReader* config) {
 //    start_server_impl<restinio::default_traits_t>(config);
-    boost::thread server_thread(boost::bind(start_server_impl_c, config));
+    return std::make_unique<boost::thread>(boost::bind(start_server_impl_c, config));
 }
 
 

@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <memory>
+#include <boost/thread.hpp>
+
 class INIReader;
-void start_server(INIReader*);
+std::unique_ptr<boost::thread> start_server(INIReader*);
 
