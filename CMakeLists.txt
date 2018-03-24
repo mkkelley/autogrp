@@ -15,7 +15,10 @@ add_executable(autogrp main.cpp work_queue.cpp work_server.cpp work_client.cpp l
 add_library(downloader downloader.cpp)
 
 target_include_directories(autogrp PUBLIC ${Boost_INCLUDE_DIR} include )
-target_link_libraries(autogrp LINK_PUBLIC downloader ${Boost_LIBRARIES} ws2_32 wsock32 httpparser fmt )
+target_link_libraries(autogrp LINK_PUBLIC downloader ${Boost_LIBRARIES} httpparser fmt )
+if (WIN32)
+    target_link_libraries(autogrp LINK_PUBLIC wsock32 ws2_32)
+endif()
 
 find_library(curl libcurl.a)
 target_link_libraries(downloader LINK_PUBLIC curl ${Boost_LIBRARIES} )
