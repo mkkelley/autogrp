@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <locale>
 
+size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata);
+
 std::string get_timestamp();
 
 static inline void ltrim(std::string &s) {

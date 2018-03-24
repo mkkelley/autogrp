@@ -12,3 +12,9 @@ std::string get_timestamp() {
     return std::string(timestamp);
 }
 
+size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata) {
+    auto* whole_result = reinterpret_cast<std::string*>(userdata);
+    std::string partial(ptr, size * nmemb);
+    *whole_result += partial;
+    return size * nmemb;
+}

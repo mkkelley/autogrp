@@ -10,15 +10,10 @@
 #include <rapidjson/document.h>
 #include <INIReader.h>
 #include <boost/thread/thread.hpp>
+#include "logutils.h"
 
 #define FALSE 0
 
-size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata) {
-    auto* whole_result = reinterpret_cast<std::string*>(userdata);
-    std::string partial(ptr, size * nmemb);
-    *whole_result += partial;
-    return size * nmemb;
-}
 
 std::vector<std::string> get_directory_contents(const std::string& path) {
     using namespace boost::filesystem;
