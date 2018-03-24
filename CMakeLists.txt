@@ -9,7 +9,7 @@ link_directories( C:/lib/curl2/lib )
 
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
 
-add_executable(autogrp main.cpp)
+add_executable(autogrp main.cpp work_queue.cpp)
 add_library(downloader downloader.cpp)
 
 target_include_directories(autogrp PUBLIC ${Boost_INCLUDE_DIR} include )

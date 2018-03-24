@@ -5,10 +5,9 @@
 #include "windows.h"
 #include "downloader.h"
 #include "INIReader.h"
+#include "work_queue.h"
 
 bool keep_running = true;
-std::vector<std::string> work_queue;
-boost::mutex work_queue_mutex;
 
 bool CtrlHandler(DWORD fdwCtrlType) {
     if (fdwCtrlType == CTRL_C_EVENT) {
@@ -34,10 +33,7 @@ void run_downloader(const boost::system::error_code& e, const std::string& playe
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
     std::vector<std::string> new_games = download_missing_games(player_id, games_dir);
-    work_queue_mutex.lock();
-    work_queue.reserve(work_queue.size() + new_games.size());
-    work_queue.insert(work_queue.end(), new_games.begin(), new_games.end());
-    work_queue_mutex.unlock();
+    add_to_queue(new_games);
 }
 
 int main() {
@@ -55,16 +51,14 @@ int main() {
     run_downloader(boost::system::error_code(), player_id, game_dir);
 
     while (keep_running) {
-        work_queue_mutex.lock();
-        if (work_queue.empty()) {
-            work_queue_mutex.unlock();
+        auto opt_job = get_job();
+        if (!opt_job.has_value()) {
             Sleep(1000);
             continue;
         }
+        auto job = opt_job.value();
 
-        std::string filename = work_queue[0];
-        work_queue.erase(work_queue.begin());
-        work_queue_mutex.unlock();
+        std::string filename = job.first;
 
         std::cout << get_timestamp() << " Starting to process: " << filename;
         boost::process::child analysis(python_exe_path,
