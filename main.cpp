@@ -29,26 +29,24 @@ std::string get_timestamp() {
     return std::string(timestamp);
 }
 
-void run_downloader(const boost::system::error_code& e, const std::string& player_id, const std::string& games_dir) {
+void run_downloader(const boost::system::error_code& e, INIReader* config) {
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
-    std::vector<std::string> new_games = download_missing_games(player_id, games_dir);
+    std::vector<std::string> new_games = download_missing_games(config);
     add_to_queue(new_games);
 }
 
 int main() {
     SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(CtrlHandler), true);
     INIReader reader("config.ini");
-    std::string player_id = reader.Get("core", "ogs_id", "");
-    std::string game_dir = reader.Get("core", "games_dir", "");
     std::string python_exe_path = reader.Get("core", "python_exe_path", "");
     std::string analysis_path = reader.Get("core", "grp_analyze_path_flags", "");
-    if (player_id.empty() || game_dir.empty() || python_exe_path.empty() || analysis_path.empty()) return 1;
+    if (python_exe_path.empty() || analysis_path.empty()) return 1;
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
-    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, player_id, game_dir));
+    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &reader));
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
-    run_downloader(boost::system::error_code(), player_id, game_dir);
+    run_downloader(boost::system::error_code(), &reader);
 
     while (keep_running) {
         auto opt_job = get_job();

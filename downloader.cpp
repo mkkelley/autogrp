@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <rapidjson/document.h>
+#include <INIReader.h>
 
 size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata) {
     auto* whole_result = reinterpret_cast<std::string*>(userdata);
@@ -27,9 +28,12 @@ std::vector<std::string> get_directory_contents(const std::string& path) {
     return out;
 }
 
-std::vector<std::string> download_missing_games(const std::string& player_id, const std::string& game_dir_path) {
+std::vector<std::string> download_missing_games(INIReader* config) {
+    std::string player_id = config->Get("core", "ogs_id", "");
+    std::string game_dir = config->Get("core", "games_dir", "");
+    if (player_id.empty() || game_dir.empty()) exit(1);
     std::vector<std::string> new_files;
-    auto directory_contents = get_directory_contents(game_dir_path);
+    auto directory_contents = get_directory_contents(game_dir);
     directory_contents.erase(std::remove_if(directory_contents.begin(), directory_contents.end(),
                                             [](const std::string& filename) { return filename.find(".sgf") == std::string::npos;}),
                              directory_contents.end());
@@ -83,7 +87,7 @@ std::vector<std::string> download_missing_games(const std::string& player_id, co
             curl_easy_perform(handle);
             curl_easy_reset(handle);
 
-            std::string new_file_path = game_dir_path + "/" + id + ".sgf";
+            std::string new_file_path = game_dir + "/" + id + ".sgf";
             std::ofstream newsgf(new_file_path, std::ios::binary);
             newsgf.write(data.c_str(), data.size());
             newsgf.close();
