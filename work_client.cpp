@@ -122,7 +122,6 @@ void work_client::do_job(const JobInfo& job_info) {
     boost::process::child analysis(python_path,
                                    analysis_path,
                                    "--no-gui",
-                                   "--range=\"1-5\"",
                                    job_info.client_save_location);
     analysis.wait();
     analysis.terminate();
