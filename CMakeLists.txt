@@ -11,7 +11,7 @@ link_directories( C:/lib/curl2/lib )
 
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
 
-add_executable(autogrp main.cpp work_queue.cpp work_server.cpp work_server.h work_client.cpp work_client.h)
+add_executable(autogrp main.cpp work_queue.cpp work_server.cpp work_client.cpp logutils.cpp)
 add_library(downloader downloader.cpp)
 
 target_include_directories(autogrp PUBLIC ${Boost_INCLUDE_DIR} include )

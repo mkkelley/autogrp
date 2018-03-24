@@ -10,6 +10,7 @@
 #include <INIReader.h>
 #include <boost/process/child.hpp>
 #include "downloader.h"
+#include "logutils.h"
 
 
 size_t parse_job_info(char* ptr, size_t size, size_t nmemb, void* userdata) {
@@ -22,8 +23,11 @@ size_t parse_job_info(char* ptr, size_t size, size_t nmemb, void* userdata) {
     } else if (header.find("server_save_location") != std::string::npos) {
         auto ssl_start = header.find(':') + 2;
         job_info->server_save_location = header.substr(ssl_start);
+        trim(job_info->server_save_location);
         auto filename_start = job_info->server_save_location.find_last_of('/') + 1;
         job_info->filename = job_info->server_save_location.substr(filename_start);
+        trim(job_info->filename);
+        boost::replace_first(job_info->filename, ".rsgf", ".sgf");
     }
     return size * nmemb;
 }
@@ -109,6 +113,7 @@ void work_client::do_job(const JobInfo& job_info) {
         std::cout << "Python path not set. Please set in client_config.ini\n";
     }
 
+    std::cout << get_timestamp() << " Starting to analyse: " << job_info.filename << std::endl;
     boost::process::child analysis(python_path,
                                    analysis_path,
                                    "--no-gui",

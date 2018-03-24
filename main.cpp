@@ -6,6 +6,9 @@
 #include "downloader.h"
 #include "INIReader.h"
 #include "work_queue.h"
+#include "work_client.h"
+#include "logutils.h"
+#include "work_server.h"
 
 bool keep_running = true;
 
@@ -19,16 +22,6 @@ bool CtrlHandler(DWORD fdwCtrlType) {
     }
 }
 
-std::string get_timestamp() {
-    char timestamp[20];
-    time_t now = time(nullptr);
-    strftime(timestamp + 1, 19, "%d/%m/%y %H:%M:%S", localtime(&now));
-    timestamp[0] = '[';
-    timestamp[sizeof(timestamp)/sizeof(char) - 1] = '\0';
-    timestamp[sizeof(timestamp)/sizeof(char) - 2] = ']';
-    return std::string(timestamp);
-}
-
 void run_downloader(const boost::system::error_code& e, INIReader* config) {
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
@@ -39,32 +32,24 @@ void run_downloader(const boost::system::error_code& e, INIReader* config) {
 int main() {
     SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(CtrlHandler), true);
     INIReader reader("config.ini");
-    std::string python_exe_path = reader.Get("core", "python_exe_path", "");
-    std::string analysis_path = reader.Get("core", "grp_analyze_path_flags", "");
-    if (python_exe_path.empty() || analysis_path.empty()) return 1;
+    INIReader client_config("client_config.ini");
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
     t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &reader));
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
     run_downloader(boost::system::error_code(), &reader);
+    start_server(&reader);
+    work_client c(&client_config);
 
     while (keep_running) {
-        auto opt_job = get_job();
+        auto opt_job = c.get_job();
         if (!opt_job.has_value()) {
             Sleep(1000);
             continue;
         }
         auto job = opt_job.value();
 
-        std::string filename = job.first;
-
-        std::cout << get_timestamp() << " Starting to process: " << filename;
-        boost::process::child analysis(python_exe_path,
-                                       analysis_path,
-                                       "--no-gui",
-                                       filename);
-        analysis.wait();
-        analysis.terminate();
+        c.do_job(job);
     }
 
     t.cancel();
