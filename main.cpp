@@ -67,6 +67,7 @@ int main() {
             auto job = opt_job.value();
 
             c.do_job(job);
+            c.submit_job(job);
         }
     } else {
         server_thread->join();

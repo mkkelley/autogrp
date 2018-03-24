@@ -78,7 +78,9 @@ void work_client::submit_job(const JobInfo& job_info) {
     std::string save_location_header = "server_save_location: " + job_info.server_save_location;
     curl_slist* headers = NULL;
     headers = curl_slist_append(headers, save_location_header.c_str());
-    std::ifstream rsgf_file(job_info.client_save_location, std::ios::binary);
+    std::string rsgf_path = job_info.client_save_location;
+    boost::replace_first(rsgf_path, ".sgf", ".rsgf");
+    std::ifstream rsgf_file(rsgf_path, std::ios::binary);
     std::string rsgf;
     rsgf_file.seekg(0, std::ios::end);
     rsgf.reserve(static_cast<unsigned long long int>(rsgf_file.tellg()));
