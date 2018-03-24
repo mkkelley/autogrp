@@ -19,6 +19,7 @@ size_t parse_job_info(char* ptr, size_t size, size_t nmemb, void* userdata) {
     if (header.find("analysis_bot") != std::string::npos) {
         auto bot_start = header.find(':') + 2;
         std::string bot_name = header.substr(bot_start);
+        trim(bot_name);
         job_info->bot = bot_from_string(bot_name);
     } else if (header.find("server_save_location") != std::string::npos) {
         auto ssl_start = header.find(':') + 2;
@@ -103,6 +104,7 @@ void work_client::do_job(const JobInfo& job_info) {
     switch (job_info.bot) {
         case BOT::LEELA_ZERO:
             analysis_path = config->Get("client", "leela_zero_path", "");
+            break;
         default:
             analysis_path = config->Get("client", "leela_path", "");
     }
@@ -113,12 +115,14 @@ void work_client::do_job(const JobInfo& job_info) {
     std::string python_path = config->Get("client", "python_path", "");
     if (python_path.empty()) {
         std::cout << "Python path not set. Please set in client_config.ini\n";
+        return;
     }
 
     std::cout << get_timestamp() << " Starting to analyse: " << job_info.filename << std::endl;
     boost::process::child analysis(python_path,
                                    analysis_path,
                                    "--no-gui",
+                                   "--range=\"1-5\"",
                                    job_info.client_save_location);
     analysis.wait();
     analysis.terminate();
