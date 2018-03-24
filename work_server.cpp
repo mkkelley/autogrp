@@ -31,10 +31,17 @@ void start_server_impl(INIReader* config) {
                                                 .done();
                                     } else {
                                         auto job = job_opt.value();
+                                        auto sendfile = restinio::sendfile(job.first);
+                                        sendfile.offset_and_size(0);
+                                        std::string local_save_location = job.first.substr(0, job.first.size() - 4);
+                                        local_save_location.append("_").append(string_from_bot(job.second)).append(".rsgf");
+
                                         return request->create_response()
                                                 .append_header(restinio::http_field::server, "AutoGRP Job Server")
                                                 .append_header_date_field()
-                                                .set_body(job.first + " " + string_from_bot(job.second))
+                                                .append_header("analysis_bot", string_from_bot(job.second))
+                                                .append_header("local_save_location", local_save_location)
+                                                .set_body(std::move(sendfile))
                                                 .done();
                                     }
                                 }
