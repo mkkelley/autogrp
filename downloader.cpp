@@ -9,6 +9,9 @@
 #include <boost/range/iterator_range.hpp>
 #include <rapidjson/document.h>
 #include <INIReader.h>
+#include <boost/thread/thread.hpp>
+
+#define FALSE 0
 
 size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata) {
     auto* whole_result = reinterpret_cast<std::string*>(userdata);
@@ -59,7 +62,7 @@ std::vector<std::string> download_missing_games(INIReader* config) {
         curl_easy_reset(handle);
         rapidjson::Document document;
         document.Parse(data.c_str());
-        Sleep(2000);
+        boost::this_thread::sleep_for(boost::chrono::seconds(1));
         assert(document.HasMember("next"));
         if (document["next"].IsNull()) {
             has_next = false;
@@ -93,7 +96,7 @@ std::vector<std::string> download_missing_games(INIReader* config) {
             newsgf.write(data.c_str(), data.size());
             newsgf.close();
             new_files.push_back(new_file_path);
-            Sleep(2000);
+            boost::this_thread::sleep_for(boost::chrono::seconds(1));
         }
         ++current_page;
 

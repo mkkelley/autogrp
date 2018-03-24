@@ -61,7 +61,7 @@ int main() {
         while (keep_running) {
             auto opt_job = c.get_job();
             if (!opt_job.has_value()) {
-                Sleep(1000);
+                boost::this_thread::sleep_for(boost::chrono::seconds(1));
                 continue;
             }
             auto job = opt_job.value();
