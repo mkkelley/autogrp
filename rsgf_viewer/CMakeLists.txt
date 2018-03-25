@@ -3,7 +3,7 @@
 
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
 
-add_executable(rsgf_viewer main.cpp sgf_parser.cpp Sgf.cpp Sgf.h)
+add_executable(rsgf_viewer main.cpp sgf_parser.cpp Sgf.cpp move.cpp)
 add_executable(calc_debug calc_debug.cpp)
 
 target_include_directories(rsgf_viewer PUBLIC ${Boost_INCLUDE_DIR} )

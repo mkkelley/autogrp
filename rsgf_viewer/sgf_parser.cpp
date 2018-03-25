@@ -22,6 +22,7 @@
 //#include <boost/spirit/include/classic_debug.hpp>
 //#include <boost/spirit/include/classic_debug_node.hpp>
 #include "Sgf.h"
+#include "move.h"
 #include "../src/logutils.h"
 
 namespace qi = boost::spirit::qi;
@@ -85,7 +86,8 @@ void parse_sgf(const std::string& filename) {
     bool r = qi::parse(begin,
                        end,
                        sgf_parser, ast);
+//    print_game_tree(ast);
+    auto move = parse_game_tree(ast);
     std::cout << r << std::endl;
-    print_game_tree(ast);
 
 }
