@@ -23,6 +23,7 @@ int main() {
     boost::asio::io_service io;
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
     signals.async_wait(ctrl_handler);
+    boost::thread io_thread(boost::bind(&boost::asio::io_service::run, &io));
     work_client c(&client_config);
 
     while (keep_running) {
@@ -37,6 +38,7 @@ int main() {
         c.submit_job(job);
     }
 
+    io_thread.join();
 
     return 0;
 }
