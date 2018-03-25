@@ -17,6 +17,29 @@ Once AutoGRP is built, it needs to be configured. It looks for `config.ini` and
 `client_config.ini` in the same directory as the executable, example files
 with the necessary documentation are in the project root.
 
+### Single-Computer Use
+
+Just run the `autogrp` executable.
+
+If you follow the advice in the example
+config and set `run_local_worker` to false for the first run, remember to
+change it back. If you want to analyze a game that has already been downloaded,
+simply delete the sgf in `games_dir` and run `autogrp` again.
+
+I know that's a bit clunky and plan to add a real UI to this in the future,
+but it works for now.
+
+### Distributed Setup
+
+Run the `autogrp` executable on a central server. If the server is not capable
+of (or simply should not be) running game analysis, set `run_local_worker` to
+false in `config.ini`.
+
+On each of the client machines, you need the `client` executable,
+`client-config.ini`, all of the available bots for analysis (the ones set in
+`config.ini` on the server), and goreviewparter. Once all of that is done,
+just run `client`.
+
 
 Building
 ========

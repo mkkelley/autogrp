@@ -13,7 +13,7 @@ port = 18185
 
 [client]
 
-# working directory for client program
+# working directory for client program. Must exist
 temp_sgf_path = C:/temp/autogrp
 
 # path to python2 executable
