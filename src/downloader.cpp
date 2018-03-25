@@ -98,12 +98,5 @@ std::vector<std::string> download_missing_games(INIReader* config) {
     }
 
     curl_easy_cleanup(handle);
-//    std::cout << data << std::endl;
     return new_files;
 }
-
-//int main(int, char**) {
-//    download_missing_games("504897", "C:/users/purti/documents/go/ogsgames");
-//    get_directory_contents("C:/users/purti/documents/go/ogsgames");
-//    return 0;
-//}
