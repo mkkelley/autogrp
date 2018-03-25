@@ -19,7 +19,7 @@ void ctrl_handler(const boost::system::error_code& e, int signal_number) {
     }
 }
 
-void run_downloader(const boost::system::error_code& e, INIReader* config) {
+void run_downloader(const boost::system::error_code& e, boost::asio::deadline_timer* timer, INIReader* config) {
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
     std::vector<std::string> new_games = download_missing_games(config);
@@ -41,18 +41,19 @@ void run_downloader(const boost::system::error_code& e, INIReader* config) {
         }
     }
     add_to_queue(jobs);
+    timer->expires_at(timer->expires_at() + boost::posix_time::hours(1));
+    timer->async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, timer, config));
 }
 
 int main() {
     INIReader reader("config.ini");
     INIReader client_config("client_config.ini");
     boost::asio::io_service io;
-    boost::asio::deadline_timer t(io, boost::posix_time::hours(1));
-    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &reader));
+    boost::asio::deadline_timer t(io, boost::posix_time::seconds(1));
+    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &t, &reader));
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
     signals.async_wait(ctrl_handler);
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
-    run_downloader(boost::system::error_code(), &reader);
     auto server_thread = start_server(&reader);
 
     if (reader.GetBoolean("core", "run_local_worker", true)) {
