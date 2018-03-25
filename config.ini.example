@@ -13,6 +13,7 @@ games_dir = C:/go/games
 # Allows skipping old games. Might have to play around with it a little, but
 # generally a number that is 2 less than the highest page in the game history
 # section of ogs profile page is a good place to start. Starts from 1, not 0
+# There are 10 games per page, starting from the oldest.
 start_page = 1
 
 # Space-separated list of bots, autogrp will analyze each game with every bot
@@ -22,10 +23,11 @@ start_page = 1
 bots_to_use = leela leela_zero
 
 # Whether or not to run a worker thread on the server machine.
-# For most users, keep this as true
-# If the machine running autogrp isn't capable of reasonable analysis,
-# but other machines are subscribed to the server, it might be reasonable
-# to set this to false
+# When running autogrp the first time, if you don't want it to start analysis
+# jobs for every game it downloads, set this to false, let the downloader run,
+# then set this to true and restart the program.
+# For most users, keep this as true after that. If you're running a distributed
+# setup where the server should not run game analysis, set this to false.
 run_local_work = true
 
 [server]
