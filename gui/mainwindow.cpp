@@ -26,6 +26,8 @@ MainWindow::MainWindow(INIReader* config, QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
+    worker_thread.quit();
+    worker_thread.wait();
     delete ui;
 }
 
