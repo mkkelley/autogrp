@@ -7,4 +7,5 @@ add_subdirectory(lib/fmt)
 add_subdirectory(lib/http-parser)
 add_subdirectory(rsgf_viewer)
 add_subdirectory(src)
+add_subdirectory(gui)
 
