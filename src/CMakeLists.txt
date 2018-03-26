@@ -22,3 +22,6 @@ target_link_libraries(autogrp LINK_PUBLIC downloader ${Boost_LIBRARIES} httppars
 if (WIN32)
     target_link_libraries(autogrp LINK_PUBLIC wsock32 ws2_32)
 endif()
+if (UNIX)
+    target_link_libraries(autogrp LINK_PUBLIC pthread)
+endif()
