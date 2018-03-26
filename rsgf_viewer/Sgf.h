@@ -4,12 +4,11 @@
 
 #pragma once
 
+#include <vector>
 #include <string>
 #include <variant>
 #include <iostream>
 #include <ctime>
-
-#include "move.h"
 
 using Compose = std::pair<std::string, std::string>;
 using CValueType = std::variant<std::string, Compose>;

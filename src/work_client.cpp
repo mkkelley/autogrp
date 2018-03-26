@@ -81,12 +81,7 @@ void work_client::submit_job(const JobInfo& job_info) {
     headers = curl_slist_append(headers, save_location_header.c_str());
     std::string rsgf_path = job_info.client_save_location;
     boost::replace_first(rsgf_path, ".sgf", ".rsgf");
-    std::ifstream rsgf_file(rsgf_path, std::ios::binary);
-    std::string rsgf;
-    rsgf_file.seekg(0, std::ios::end);
-    rsgf.reserve(static_cast<unsigned long long int>(rsgf_file.tellg()));
-    rsgf_file.seekg(0, std::ios::beg);
-    rsgf.assign((std::istreambuf_iterator<char>(rsgf_file)), std::istreambuf_iterator<char>());
+    std::string rsgf = load_file_into_string(rsgf_path);
 
     curl_easy_reset(handle);
     curl_easy_setopt(handle, CURLOPT_URL, submit_url.c_str());

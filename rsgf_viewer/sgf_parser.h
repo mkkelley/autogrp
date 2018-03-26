@@ -1,3 +1,5 @@
 #pragma once
 
-void parse_sgf();
+#include <string>
+
+void parse_sgf(const std::string& filename);
