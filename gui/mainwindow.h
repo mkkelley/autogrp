@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QAbstractItemModel>
 
 namespace Ui {
 class MainWindow;
@@ -22,9 +23,13 @@ private slots:
     void downloader_finished();
 
 private:
+    void setup_model();
+    void load_sgfs();
+
     Ui::MainWindow *ui;
     INIReader* config;
     QThread worker_thread;
+    QAbstractItemModel* model;
 };
 
 class Downloader : public QObject {

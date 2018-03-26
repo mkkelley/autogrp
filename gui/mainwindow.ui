@@ -14,19 +14,18 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>181</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run Downloader Now</string>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>Run Downloader Now</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableView" name="tableView"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

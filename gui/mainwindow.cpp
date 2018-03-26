@@ -5,6 +5,7 @@
 #include <vector>
 #include <INIReader.h>
 #include <boost/algorithm/string.hpp>
+#include <QStandardItemModel>
 
 #include "logutils.h"
 #include "downloader.h"
@@ -22,6 +23,13 @@ MainWindow::MainWindow(INIReader* config, QWidget* parent) :
     connect(ui->pushButton, &QPushButton::released, downloader, &Downloader::run_downloader);
     connect(downloader, &Downloader::downloader_finished, this, &MainWindow::downloader_finished);
     worker_thread.start();
+
+    setup_model();
+    load_sgfs();
+
+    ui->tableView->setModel(model);
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+    ui->tableView->resizeColumnsToContents();
 }
 
 MainWindow::~MainWindow()
@@ -29,6 +37,34 @@ MainWindow::~MainWindow()
     worker_thread.quit();
     worker_thread.wait();
     delete ui;
+}
+
+void MainWindow::on_pushButton_released()
+{
+    ui->pushButton->setText("Downloader Running...");
+    ui->pushButton->setEnabled(false);
+}
+
+void MainWindow::downloader_finished() {
+    ui->pushButton->setText("Run Downloader Now");
+    ui->pushButton->setEnabled(true);
+}
+
+void MainWindow::setup_model() {
+    model = new QStandardItemModel(10, 3, this);
+    model->setHeaderData(0, Qt::Horizontal, tr("File"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Black"));
+    model->setHeaderData(2, Qt::Horizontal, tr("White"));
+}
+
+void MainWindow::load_sgfs() {
+    auto files = get_directory_contents(config->Get("core", "games_dir", ""));
+    for (int i = 0; i < 10; ++i) {
+        model->setData(model->index(i, 0), QString::fromStdString(files[i]));
+        model->setData(model->index(i, 1), QString(""));
+        model->setData(model->index(i, 2), QString(""));
+    }
+
 }
 
 Downloader::Downloader(INIReader *config) : config(config) { }
@@ -55,15 +91,4 @@ void Downloader::run_downloader() {
     }
     add_to_queue(jobs);
     emit downloader_finished();
-}
-
-void MainWindow::on_pushButton_released()
-{
-    ui->pushButton->setText("Downloader Running...");
-    ui->pushButton->setEnabled(false);
-}
-
-void MainWindow::downloader_finished() {
-    ui->pushButton->setText("Run Downloader Now");
-    ui->pushButton->setEnabled(true);
 }
