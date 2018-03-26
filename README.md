@@ -13,9 +13,9 @@ GNU Go can be added easily.
 
 Getting Started
 ---------------
-Once AutoGRP is built, it needs to be configured. It looks for `config.ini` and
-`client_config.ini` in the same directory as the executable, example files
-with the necessary documentation are in the project root.
+Once AutoGRP is built or downloaded, it needs to be configured. It looks for
+`config.ini` and `client_config.ini` in the same directory as the executable,
+example files with the necessary documentation are in the project root.
 
 ### Single-Computer Use
 
@@ -75,6 +75,8 @@ I don't have an Apple system to test on, but it should work just fine.
 
 ### Windows
 
+There is a binary available on the GitHub Releases section.
+
 AutoGRP can be built on Windows, but it is quite laborious. To get the compiler
 and Boost, I recommend Stephan Lavavej's [MinGW Distro](https://nuwen.net/mingw.html).
 
@@ -86,4 +88,6 @@ containing libcurl.a/libcurl.dll.a.
 After that, the build might work. If it does, put the necessary DLLs in a
 folder with the executable and cross your fingers.
 
-I plan to release a binary for windows in the near future.
+##### Why is the binary so big?
+
+Boost is statically linked.
