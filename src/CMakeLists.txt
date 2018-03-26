@@ -9,12 +9,18 @@ add_library(downloader downloader.cpp)
 target_link_libraries(downloader LINK_PUBLIC curl ${Boost_LIBRARIES} )
 target_include_directories(downloader PUBLIC C:/lib/curl2/include ${Boost_INCLUDE_DIR} ../include)
 
+
 add_executable(client client_main.cpp work_client.cpp work_queue.cpp logutils.cpp)
 target_include_directories(client PUBLIC ${Boost_INCLUDE_DIR} ../include C:/lib/curl2/include )
 target_link_libraries(client LINK_PUBLIC curl ${Boost_LIBRARIES} )
 if (WIN32)
     target_link_libraries(client LINK_PUBLIC ws2_32)
 endif()
+if (UNIX)
+    target_link_libraries(client LINK_PUBLIC pthread)
+endif()
+
+add_library(agrp work_queue.cpp logutils.cpp )
 
 add_executable(autogrp main.cpp work_client.cpp logutils.cpp work_queue.cpp work_server.cpp)
 target_include_directories(autogrp PUBLIC ${Boost_INCLUDE_DIR} ../include )
