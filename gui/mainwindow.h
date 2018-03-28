@@ -24,7 +24,6 @@ private slots:
 
 private:
     void setup_model();
-    void load_sgfs();
 
     Ui::MainWindow *ui;
     Config* config;

@@ -5,7 +5,7 @@
 #include "downloader.h"
 #include "config.h"
 
-SgfTableModel::SgfTableModel(Config* config) : directory(config->games_dir)
+SgfTableModel::SgfTableModel(Config* config, QObject* parent) : QAbstractTableModel(parent), directory(config->games_dir)
 {
     std::vector<std::string> bot_strings;
     boost::split(bot_strings, config->bots_to_use, boost::is_any_of(" \t"), boost::token_compress_on);
@@ -55,6 +55,8 @@ QVariant SgfTableModel::data(const QModelIndex &index, int role) const {
         }
     }
 
+    if (role != Qt::DisplayRole) return QVariant::Invalid;
+
     switch (index.column()) {
     case 0: {
         std::string filename = sgf.filename.substr(sgf.filename.find_last_of('/') + 1);
@@ -69,7 +71,7 @@ QVariant SgfTableModel::data(const QModelIndex &index, int role) const {
 
 }
 
-QVariant headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant SgfTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Vertical) return QVariant::Invalid;
     switch (section) {
     case 0:

@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include <QStandardItemModel>
 
+#include "sgf_table_model.h"
 #include "logutils.h"
 #include "downloader.h"
 #include "work_queue.h"
@@ -26,7 +27,6 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     worker_thread.start();
 
     setup_model();
-    load_sgfs();
 
     ui->tableView->setModel(model);
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
@@ -52,30 +52,7 @@ void MainWindow::downloader_finished() {
 }
 
 void MainWindow::setup_model() {
-    model = new QStandardItemModel(0, 3, this);
-    model->setHeaderData(0, Qt::Horizontal, tr("File"));
-    model->setHeaderData(1, Qt::Horizontal, tr("Black"));
-    model->setHeaderData(2, Qt::Horizontal, tr("White"));
-}
-
-void MainWindow::load_sgfs() {
-    std::string games_dir = config->games_dir;
-    auto files = get_directory_contents(games_dir);
-    static_cast<QStandardItemModel*>(model)->setRowCount(files.size());
-    for (int i = 0; i < files.size(); ++i) {
-        Sgf game(games_dir + "/" + files[i]);
-        model->setData(model->index(i, 0), QString::fromStdString(files[i]));
-        model->setData(model->index(i, 1), QString::fromStdString(game.black));
-        model->setData(model->index(i, 2), QString::fromStdString(game.white));
-        QFont font;
-        font.setBold(true);
-        if (game.black_won) {
-            model->setData(model->index(i, 1), font, Qt::FontRole);
-        } else if (game.white_won) {
-            model->setData(model->index(i, 2), font, Qt::FontRole);
-        }
-    }
-
+    model = new SgfTableModel(config, this);
 }
 
 Downloader::Downloader(Config *config) : config(config) { }
