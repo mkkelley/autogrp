@@ -19,8 +19,12 @@ void ctrl_handler(const boost::system::error_code& e, int signal_number) {
     }
 }
 
-int main() {
-    INIReader client_config_reader("client_config.ini");
+int main(int argc, char** argv) {
+    std::string client_config_path = "client_config.ini";
+    if (argc > 1) {
+        client_config_path = argv[1];
+    }
+    INIReader client_config_reader(client_config_path);
     ClientConfig client_config(&client_config_reader);
     boost::asio::io_service io;
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
