@@ -15,7 +15,10 @@ struct Move {
 
     explicit Move(Color c, const std::string& p) : color(c), row(-1), col(-1), pass(false)
     {
-        if (p.empty()) pass = true;
+        if (p.empty()) {
+            pass = true;
+            return;
+        }
         if (p[0] >= 'a') row = p[0] - 'a' + 1;
         else row = p[0] - 'A' + 1;
         if (p[1] >= 'a') col = p[1] - 'a' + 1;

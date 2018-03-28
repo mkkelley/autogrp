@@ -18,7 +18,7 @@ public:
     explicit MainWindow(Config* config, QWidget* parent = nullptr);
     ~MainWindow();
 
-private slots:
+public slots:
     void on_pushButton_released();
     void downloader_finished();
 

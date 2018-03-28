@@ -23,6 +23,9 @@ boost::posix_time::ptime string_to_ptime(const std::string& time_string) {
 Sgf::Sgf(const std::string& filename) : filename(filename) {
     GameTree ast = parse_sgf(filename);
     game_tree = parse_game_tree(ast);
+    if (ast.sequence_.size() == 0) {
+        return;
+    }
     const auto& properties = ast.sequence_[0];
     for (const auto& property : properties) {
         const auto& id = property.identifier;
