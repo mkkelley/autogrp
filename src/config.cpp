@@ -25,7 +25,7 @@ Config::Config(INIReader* inireader) :
 ClientConfig::ClientConfig(INIReader *inireader) :
     port(inireader->GetInteger("server", "port", 18185)),
     address(inireader->Get("server", "address", "localhost")),
-    temp_sgf_path(inireader->Get("cleint", "temp_sgf_path", "")),
+    temp_sgf_path(inireader->Get("client", "temp_sgf_path", "")),
     python_path(inireader->Get("client", "python_path", "")),
     leela_path(inireader->Get("client", "leela_path", "")),
     leela_zero_path(inireader->Get("client", "leela_zero_path", ""))
