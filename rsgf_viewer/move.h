@@ -31,3 +31,19 @@ struct Move {
 
 std::unique_ptr<Move> parse_game_tree(const GameTree& tree);
 
+
+struct Sgf {
+    Sgf(const std::string& filename);
+
+    std::string white;
+    std::string black;
+    std::time_t date;
+    bool black_won;
+    bool white_won;
+    double margin;
+    int size;
+    double komi;
+    std::string rules;
+    int handicap;
+    std::unique_ptr<Move> game_tree;
+};

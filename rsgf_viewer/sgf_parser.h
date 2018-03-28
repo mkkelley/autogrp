@@ -1,5 +1,6 @@
 #pragma once
 
 #include <string>
+#include "Sgf.h"
 
-void parse_sgf(const std::string& filename);
+GameTree parse_sgf(const std::string& filename);

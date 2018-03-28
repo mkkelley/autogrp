@@ -73,7 +73,7 @@ struct sgf_parser : public boost::spirit::qi::grammar<InputIterator, GameTree()>
 
 };
 
-void parse_sgf(const std::string& filename) {
+GameTree parse_sgf(const std::string& filename) {
     std::ifstream sgf_file(filename);
     sgf_file.unsetf(std::ios::skipws);
 
@@ -87,7 +87,7 @@ void parse_sgf(const std::string& filename) {
                        end,
                        sgf_parser, ast);
 //    print_game_tree(ast);
-    auto move = parse_game_tree(ast);
-    std::cout << r << std::endl;
-
+    //auto move = parse_game_tree(ast);
+    //std::cout << r << std::endl;
+    return ast;
 }

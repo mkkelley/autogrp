@@ -37,17 +37,3 @@ void print_sequence(const Sequence& seq);
 
 void print_game_tree(const GameTree& game_tree);
 
-class Sgf {
-
-    std::string white;
-    std::string black;
-    std::time_t date;
-    bool black_won;
-    bool white_won;
-    double margin;
-    int size;
-    double komi;
-    std::string rules;
-};
-
-
