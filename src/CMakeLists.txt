@@ -1,20 +1,17 @@
 
-find_library(curl libcurl.a)
-
-link_directories( C:/lib/curl2/lib )
-
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
+find_package(CURL REQUIRED)
 
 add_library(logutils logutils.cpp config.cpp)
 target_include_directories(logutils PUBLIC ../include)
 
 add_library(downloader downloader.cpp)
-target_link_libraries(downloader LINK_PUBLIC curl ${Boost_LIBRARIES} )
+target_link_libraries(downloader LINK_PUBLIC ${Boost_LIBRARIES} ${CURL_LIBRARIES} )
 target_include_directories(downloader PUBLIC C:/lib/curl2/include ${Boost_INCLUDE_DIR} ../include)
 
 add_executable(client client_main.cpp work_client.cpp work_queue.cpp logutils.cpp)
 target_include_directories(client PUBLIC ${Boost_INCLUDE_DIR} ../include C:/lib/curl2/include )
-target_link_libraries(client LINK_PUBLIC curl ${Boost_LIBRARIES} logutils)
+target_link_libraries(client LINK_PUBLIC ${Boost_LIBRARIES} logutils ${CURL_LIBRARIES} )
 if (WIN32)
     target_link_libraries(client LINK_PUBLIC ws2_32)
 endif()
@@ -23,6 +20,7 @@ if (UNIX)
 endif()
 
 add_library(agrp work_queue.cpp logutils.cpp )
+target_include_directories(agrp PUBLIC ${Boost_INCLUDE_DIR} )
 
 add_executable(autogrp main.cpp work_client.cpp work_queue.cpp work_server.cpp)
 target_include_directories(autogrp PUBLIC ${Boost_INCLUDE_DIR} ../include )

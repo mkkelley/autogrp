@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <locale>
+#include <cctype>
 
 size_t partial_save_result(char* ptr, size_t size, size_t nmemb, void* userdata);
 
@@ -11,7 +12,7 @@ std::string get_timestamp();
 std::string load_file_into_string(const std::string& filename);
 
 static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned const char ch) {
         return !std::isspace(ch);
     }));
 }
