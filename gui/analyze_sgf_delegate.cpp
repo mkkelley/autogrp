@@ -11,6 +11,11 @@ AnalyzeSgfDelegate::AnalyzeSgfDelegate(Config* config, QObject* parent) : QStyle
 
 }
 
+bool file_exists(QString& path) {
+    QFileInfo check_file(path);
+    return check_file.exists();
+}
+
 
 void AnalyzeSgfDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -26,8 +31,7 @@ void AnalyzeSgfDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (index.data().canConvert<QString>()) {
         QString path = qvariant_cast<QString>(index.data());
-        QFileInfo check_file(path);
-        if (check_file.exists()) {
+        if (file_exists(path)) {
             button.text = "Show";
         } else {
             button.text = "Analyze";
@@ -49,6 +53,7 @@ bool AnalyzeSgfDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, c
     if (click_x > r.x() && click_x < r.x() + r.width() &&
             click_y > r.y() && click_y < r.y() + r.height()) {
         QDialog* d = new QDialog();
+        QString path = qvariant_cast<QString>(index.data());
         d->setGeometry(0, 0, 100, 100);
         d->show();
     }
