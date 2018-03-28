@@ -13,8 +13,9 @@ SgfTableModel::SgfTableModel(Config* config, QObject* parent) : QAbstractTableMo
         bots_to_use.push_back(bot_from_string(bot_string));
     }
     auto files = get_directory_contents(directory);
-    for (int i = 0; i < files.size(); ++i) {
-        sgfs.emplace_back(directory + "/" + files[i]);
+    for (const auto& file : files) {
+        if (file.find(".sgf") == std::string::npos) continue;
+        sgfs.emplace_back(directory + "/" + file);
     }
 }
 
@@ -53,13 +54,21 @@ QVariant SgfTableModel::data(const QModelIndex &index, int role) const {
     case 2:
         return QString::fromStdString(sgf.white);
     default:
-        return QVariant::Invalid;
+        if (index.column() < columnCount()) {
+            std::string analyzed_file_path = sgf.filename;
+            auto idx = analyzed_file_path.find_last_of('.');
+            analyzed_file_path.insert(idx + 1, "r");
+            analyzed_file_path.insert(idx, "_" + string_from_bot(bots_to_use[index.column() - 3]));
+            return QString::fromStdString(analyzed_file_path);
+        } else {
+            return QVariant::Invalid;
+        }
     }
 
 }
 
 QVariant SgfTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    if (orientation == Qt::Vertical) return QVariant::Invalid;
+    if (orientation == Qt::Vertical || role != Qt::DisplayRole) return QVariant::Invalid;
     switch (section) {
     case 0:
         return QString("File");
@@ -68,6 +77,11 @@ QVariant SgfTableModel::headerData(int section, Qt::Orientation orientation, int
     case 2:
         return QString("White");
     default:
-        return QVariant::Invalid;
+        if (section < columnCount()) {
+            std::string bot_string = string_from_bot(bots_to_use[section - 3]);
+            return QString::fromStdString(bot_string);
+        } else {
+            return QVariant::Invalid;
+        }
     }
 }

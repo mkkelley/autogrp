@@ -12,6 +12,7 @@
 #include "work_queue.h"
 #include "move.h"
 #include "config.h"
+#include "analyze_sgf_delegate.h"
 
 MainWindow::MainWindow(Config* config, QWidget* parent) :
     QMainWindow(parent),
@@ -27,6 +28,9 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     worker_thread.start();
 
     setup_model();
+
+    auto* delegate = new AnalyzeSgfDelegate(config, this);
+    ui->tableView->setItemDelegate(delegate);
 
     ui->tableView->setModel(model);
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
