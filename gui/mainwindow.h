@@ -9,13 +9,13 @@ namespace Ui {
 class MainWindow;
 }
 
-class INIReader;
+class Config;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(INIReader* config, QWidget* parent = nullptr);
+    explicit MainWindow(Config* config, QWidget* parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -27,7 +27,7 @@ private:
     void load_sgfs();
 
     Ui::MainWindow *ui;
-    INIReader* config;
+    Config* config;
     QThread worker_thread;
     QAbstractItemModel* model;
 };
@@ -35,13 +35,13 @@ private:
 class Downloader : public QObject {
     Q_OBJECT
 public:
-    Downloader(INIReader* config);
+    Downloader(Config* config);
 public slots:
     void run_downloader();
 signals:
     void downloader_finished();
 private:
-    INIReader* config;
+    Config* config;
 };
 
 #endif // MAINWINDOW_H

@@ -8,7 +8,7 @@
 #include "work_queue.h"
 
 typedef void CURL;
-class INIReader;
+class ClientConfig;
 
 struct JobInfo {
     BOT bot;
@@ -18,7 +18,7 @@ struct JobInfo {
 };
 
 struct work_client {
-    explicit work_client(INIReader*);
+    explicit work_client(ClientConfig*);
     ~work_client();
 
     std::optional<JobInfo> get_job();
@@ -26,7 +26,7 @@ struct work_client {
     void submit_job(const JobInfo& job_info);
 
 private:
-    INIReader* config;
+    ClientConfig* config;
     std::string job_url;
     std::string submit_url;
     CURL* handle;

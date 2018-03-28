@@ -8,6 +8,7 @@
 #include "work_client.h"
 #include "logutils.h"
 #include "work_server.h"
+#include "config.h"
 
 bool keep_running = true;
 
@@ -19,12 +20,12 @@ void ctrl_handler(const boost::system::error_code& e, int signal_number) {
     }
 }
 
-void run_downloader(const boost::system::error_code& e, boost::asio::deadline_timer* timer, INIReader* config) {
+void run_downloader(const boost::system::error_code& e, boost::asio::deadline_timer* timer, Config* config) {
     if (!keep_running) return;
     std::cout << get_timestamp() << " Running downloader\n";
     std::vector<std::string> new_games = download_missing_games(config);
     std::vector<std::string> bot_strings;
-    std::string botconfig = config->Get("core", "bots_to_use", "leela");
+    std::string botconfig = config->bots_to_use;
     boost::split(bot_strings, botconfig, boost::is_any_of(" \t"), boost::token_compress_on);
     std::vector<BOT> bots_to_use;
     for (const auto& bot_string : bot_strings) {
@@ -46,17 +47,19 @@ void run_downloader(const boost::system::error_code& e, boost::asio::deadline_ti
 }
 
 int main() {
-    INIReader reader("config.ini");
-    INIReader client_config("client_config.ini");
+    INIReader config_reader("config.ini");
+    INIReader client_config_reader("client_config.ini");
+    Config config(&config_reader);
+    ClientConfig client_config(&client_config_reader);
     boost::asio::io_service io;
     boost::asio::deadline_timer t(io, boost::posix_time::seconds(1));
-    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &t, &reader));
+    t.async_wait(boost::bind(run_downloader, boost::asio::placeholders::error, &t, &config));
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
     signals.async_wait(ctrl_handler);
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
-    auto server_thread = start_server(&reader);
+    auto server_thread = start_server(&config);
 
-    if (reader.GetBoolean("core", "run_local_worker", true)) {
+    if (config.run_local_worker) {
         work_client c(&client_config);
 
         while (keep_running) {

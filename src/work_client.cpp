@@ -7,8 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <curl/curl.h>
-#include <INIReader.h>
 #include <boost/process/child.hpp>
+#include "config.h"
 #include "downloader.h"
 #include "logutils.h"
 
@@ -33,14 +33,14 @@ size_t parse_job_info(char* ptr, size_t size, size_t nmemb, void* userdata) {
     return size * nmemb;
 }
 
-work_client::work_client(INIReader* config) :
+work_client::work_client(ClientConfig* config) :
         config(config),
         handle(curl_easy_init())
 {
     job_url.append("http://")
-            .append(config->Get("server", "address", "localhost"))
+            .append(config->address)
             .append(":")
-            .append(config->Get("server", "port", "18185"));
+            .append(std::to_string(config->port));
     submit_url = job_url;
     job_url += "/job";
     submit_url += "/submit_job";
@@ -68,7 +68,7 @@ std::optional<JobInfo> work_client::get_job() {
             job_info.filename.empty() || job_info.server_save_location.empty()) {
         return std::nullopt;
     }
-    job_info.client_save_location = config->Get("client", "temp_sgf_path", ".") + "/" + job_info.filename;
+    job_info.client_save_location = config->temp_sgf_path + "/" + job_info.filename;
     std::ofstream sgf_file(job_info.client_save_location, std::ios::binary);
     sgf_file.write(sgf.c_str(), sgf.size());
     sgf_file.close();
@@ -98,16 +98,16 @@ void work_client::do_job(const JobInfo& job_info) {
     std::string analysis_path;
     switch (job_info.bot) {
         case BOT::LEELA_ZERO:
-            analysis_path = config->Get("client", "leela_zero_path", "");
+            analysis_path = config->leela_zero_path;
             break;
         default:
-            analysis_path = config->Get("client", "leela_path", "");
+            analysis_path = config->leela_path;
     }
     if (analysis_path.empty()) {
         std::cout << "Bot " << string_from_bot(job_info.bot) << " path not set. Please set in client_config.ini\n";
         return;
     }
-    std::string python_path = config->Get("client", "python_path", "");
+    std::string python_path = config->python_path;
     if (python_path.empty()) {
         std::cout << "Python path not set. Please set in client_config.ini\n";
         return;

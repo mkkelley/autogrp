@@ -7,6 +7,7 @@
 #include <boost/thread/thread.hpp>
 #include "work_client.h"
 #include "INIReader.h"
+#include "config.h"
 
 bool keep_running = true;
 
@@ -19,7 +20,8 @@ void ctrl_handler(const boost::system::error_code& e, int signal_number) {
 }
 
 int main() {
-    INIReader client_config("client_config.ini");
+    INIReader client_config_reader("client_config.ini");
+    ClientConfig client_config(&client_config_reader);
     boost::asio::io_service io;
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
     signals.async_wait(ctrl_handler);

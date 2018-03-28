@@ -5,7 +5,8 @@ link_directories( C:/lib/curl2/lib )
 
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem thread )
 
-add_library( logutils logutils.cpp)
+add_library(logutils logutils.cpp config.cpp)
+target_include_directories(logutils PUBLIC ../include)
 
 add_library(downloader downloader.cpp)
 target_link_libraries(downloader LINK_PUBLIC curl ${Boost_LIBRARIES} )

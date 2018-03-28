@@ -4,7 +4,7 @@
 
 #include "work_server.h"
 
-#include <INIReader.h>
+#include "config.h"
 #define RESTINIO_USE_BOOST_ASIO shared
 #include <restinio/all.hpp>
 #include <fstream>
@@ -13,11 +13,11 @@
 #include "work_queue.h"
 
 template <typename ServerTraits>
-void start_server_impl(INIReader* config) {
+void start_server_impl(Config* config) {
     const static int pool_size = 1;
     restinio::run(
             restinio::on_thread_pool<ServerTraits>(pool_size)
-                    .port(config->GetInteger("server", "port", 18185))
+                    .port(config->port)
                     .concurrent_accepts_count(pool_size)
                     .request_handler(
                             [&](auto request) {
@@ -69,11 +69,11 @@ void start_server_impl(INIReader* config) {
     );
 }
 
-void start_server_impl_c(INIReader* config) {
+void start_server_impl_c(Config* config) {
     start_server_impl<restinio::default_traits_t>(config);
 }
 
-std::unique_ptr<boost::thread> start_server(INIReader* config) {
+std::unique_ptr<boost::thread> start_server(Config* config) {
     return std::make_unique<boost::thread>(boost::bind(start_server_impl_c, config));
 }
 

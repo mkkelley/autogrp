@@ -7,6 +7,6 @@
 #include <memory>
 #include <boost/thread.hpp>
 
-class INIReader;
-std::unique_ptr<boost::thread> start_server(INIReader*);
+class Config;
+std::unique_ptr<boost::thread> start_server(Config*);
 

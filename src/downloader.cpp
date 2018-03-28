@@ -8,9 +8,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <rapidjson/document.h>
-#include <INIReader.h>
 #include <boost/thread/thread.hpp>
 #include "logutils.h"
+#include "config.h"
 
 #define FALSE 0
 
@@ -26,11 +26,11 @@ std::vector<std::string> get_directory_contents(const std::string& path) {
     return out;
 }
 
-std::vector<std::string> download_missing_games(INIReader* config) {
-    std::string player_id = config->Get("core", "ogs_id", "");
-    std::string game_dir = config->Get("core", "games_dir", "");
-    int start_page = config->GetInteger("core", "start_page", 1);
-    if (player_id.empty() || game_dir.empty()) exit(1);
+std::vector<std::string> download_missing_games(Config* config) {
+    std::string player_id = config->ogs_id;
+    std::string game_dir = config->games_dir;
+    int start_page = config->start_page;
+    if (player_id.empty()) exit(1);
     std::vector<std::string> new_files;
     auto directory_contents = get_directory_contents(game_dir);
     directory_contents.erase(std::remove_if(directory_contents.begin(), directory_contents.end(),

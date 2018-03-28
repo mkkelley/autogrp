@@ -3,6 +3,6 @@
 #include <vector>
 #include <string>
 
-class INIReader;
+class Config;
 std::vector<std::string> get_directory_contents(const std::string& path);
-std::vector<std::string> download_missing_games(INIReader* config);
+std::vector<std::string> download_missing_games(Config* config);

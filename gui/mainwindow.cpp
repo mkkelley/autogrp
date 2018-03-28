@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <INIReader.h>
 #include <boost/algorithm/string.hpp>
 #include <QStandardItemModel>
 
@@ -11,8 +10,9 @@
 #include "downloader.h"
 #include "work_queue.h"
 #include "move.h"
+#include "config.h"
 
-MainWindow::MainWindow(INIReader* config, QWidget* parent) :
+MainWindow::MainWindow(Config* config, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     config(config)
@@ -59,7 +59,7 @@ void MainWindow::setup_model() {
 }
 
 void MainWindow::load_sgfs() {
-    std::string games_dir = config->Get("core", "games_dir", "");
+    std::string games_dir = config->games_dir;
     auto files = get_directory_contents(games_dir);
     static_cast<QStandardItemModel*>(model)->setRowCount(files.size());
     for (int i = 0; i < files.size(); ++i) {
@@ -78,13 +78,13 @@ void MainWindow::load_sgfs() {
 
 }
 
-Downloader::Downloader(INIReader *config) : config(config) { }
+Downloader::Downloader(Config *config) : config(config) { }
 
 void Downloader::run_downloader() {
     std::cout << get_timestamp() << " Running downloader\n";
     std::vector<std::string> new_games = download_missing_games(config);
     std::vector<std::string> bot_strings;
-    std::string botconfig = config->Get("core", "bots_to_use", "leela");
+    std::string botconfig = config->bots_to_use;
     boost::split(bot_strings, botconfig, boost::is_any_of(" \t"), boost::token_compress_on);
     std::vector<BOT> bots_to_use;
     for (const auto& bot_string : bot_strings) {
