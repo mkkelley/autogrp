@@ -13,21 +13,8 @@ SgfTableModel::SgfTableModel(Config* config, QObject* parent) : QAbstractTableMo
         bots_to_use.push_back(bot_from_string(bot_string));
     }
     auto files = get_directory_contents(directory);
-    //static_cast<QStandardItemModel*>(model)->setRowCount(files.size());
     for (int i = 0; i < files.size(); ++i) {
         sgfs.emplace_back(directory + "/" + files[i]);
-        /*
-        Sgf game(directory + "/" + files[i]);
-        model->setData(model->index(i, 0), QString::fromStdString(files[i]));
-        model->setData(model->index(i, 1), QString::fromStdString(game.black));
-        model->setData(model->index(i, 2), QString::fromStdString(game.white));
-        QFont font;
-        font.setBold(true);
-        if (game.black_won) {
-            model->setData(model->index(i, 1), font, Qt::FontRole);
-        } else if (game.white_won) {
-            model->setData(model->index(i, 2), font, Qt::FontRole);
-        } */
     }
 }
 
