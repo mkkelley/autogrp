@@ -35,6 +35,7 @@ std::unique_ptr<Move> parse_game_tree(const GameTree& tree);
 struct Sgf {
     Sgf(const std::string& filename);
 
+    std::string filename;
     std::string white;
     std::string black;
     std::time_t date;

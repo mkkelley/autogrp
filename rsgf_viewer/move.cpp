@@ -20,7 +20,7 @@ boost::posix_time::ptime string_to_ptime(const std::string& time_string) {
     return pt;
 }
 
-Sgf::Sgf(const std::string& filename) {
+Sgf::Sgf(const std::string& filename) : filename(filename) {
     GameTree ast = parse_sgf(filename);
     game_tree = parse_game_tree(ast);
     const auto& properties = ast.sequence_[0];
