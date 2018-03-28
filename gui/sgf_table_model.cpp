@@ -68,3 +68,17 @@ QVariant SgfTableModel::data(const QModelIndex &index, int role) const {
     }
 
 }
+
+QVariant headerData(int section, Qt::Orientation orientation, int role) const {
+    if (orientation == Qt::Vertical) return QVariant::Invalid;
+    switch (section) {
+    case 0:
+        return QString("File");
+    case 1:
+        return QString("Black");
+    case 2:
+        return QString("White");
+    default:
+        return QVariant::Invalid;
+    }
+}
