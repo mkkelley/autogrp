@@ -4,3 +4,6 @@
 /config.ini
 /client_config.ini
 /CMakeLists.txt.user
+/.vs
+/CmakeSettings.json
+/CppProperties.json
