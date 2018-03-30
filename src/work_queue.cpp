@@ -32,6 +32,15 @@ void add_to_queue(const std::vector<std::string>& filenames) {
     add_to_queue(jobs);
 }
 
+std::vector<std::pair<std::string, BOT>> queue_copy() {
+    std::vector<std::pair<std::string, BOT>> out;
+    out.reserve(work_queue.size());
+    work_queue_lock.lock();
+    out.insert(out.begin(), work_queue.begin(), work_queue.end());
+    work_queue_lock.unlock();
+    return out;
+}
+
 std::optional<std::pair<std::string, BOT>> get_job() {
     if (work_queue.empty()) return std::nullopt;
 

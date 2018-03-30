@@ -13,4 +13,6 @@ void add_to_queue(const std::string& filename, BOT bot);
 void add_to_queue(const std::vector<std::string>&);
 void add_to_queue(const std::vector<std::pair<std::string, BOT>>&);
 
+std::vector<std::pair<std::string, BOT>> queue_copy();
+
 std::optional<std::pair<std::string, BOT>> get_job();
