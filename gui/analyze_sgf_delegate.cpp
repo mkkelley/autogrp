@@ -55,10 +55,12 @@ bool AnalyzeSgfDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, c
         return false;
     }
 
-    QDialog* d = new QDialog();
     QString path = qvariant_cast<QString>(index.data());
-    d->setGeometry(0, 0, 100, 100);
-    d->show();
+    if (file_exists(path)) {
+        emit open_rsgf(path);
+    } else {
+        emit analysis_requested(path, qvariant_cast<QString>(model->headerData(index.column(), Qt::Horizontal)));
+    }
 
     return true;
 }
