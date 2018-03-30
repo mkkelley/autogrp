@@ -35,6 +35,8 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     ui->tableView->setModel(model);
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->resizeColumnsToContents();
+
+    connect(delegate, &AnalyzeSgfDelegate::analysis_requested, ui->queueView, &QueueView::submit_job);
 }
 
 MainWindow::~MainWindow()
