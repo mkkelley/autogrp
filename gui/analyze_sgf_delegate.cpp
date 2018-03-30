@@ -59,7 +59,10 @@ bool AnalyzeSgfDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, c
     if (file_exists(path)) {
         emit open_rsgf(path);
     } else {
-        emit analysis_requested(path, qvariant_cast<QString>(model->headerData(index.column(), Qt::Horizontal)));
+        QString sgf_file =  qvariant_cast<QString>(model->data(model->index(index.row(), 0)));
+        sgf_file.prepend("/");
+        sgf_file.prepend(QString::fromStdString(config->games_dir));
+        emit analysis_requested(sgf_file, qvariant_cast<QString>(model->headerData(index.column(), Qt::Horizontal)));
     }
 
     return true;

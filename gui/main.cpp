@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "INIReader.h"
 #include "config.h"
+#include "work_server.h"
 
 int main(int argc, char** argv) {
     std::string config_path = "config.ini";
@@ -13,6 +14,7 @@ int main(int argc, char** argv) {
     QApplication qapp(argc, argv);
     INIReader config_reader(config_path);
     Config config(&config_reader);
+    start_server(&config);
     MainWindow main_window(&config);
     main_window.show();
     return qapp.exec();
