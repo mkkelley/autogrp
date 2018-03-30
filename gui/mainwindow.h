@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QThread>
 #include <QAbstractItemModel>
+#include "sgf_table_model.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,7 +29,7 @@ private:
     Ui::MainWindow *ui;
     Config* config;
     QThread worker_thread;
-    QAbstractItemModel* model;
+    SgfTableModel* model;
 };
 
 class Downloader : public QObject {

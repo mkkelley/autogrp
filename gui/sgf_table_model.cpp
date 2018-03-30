@@ -19,6 +19,23 @@ SgfTableModel::SgfTableModel(Config* config, QObject* parent) : QAbstractTableMo
     }
 }
 
+void SgfTableModel::update_table() {
+    auto files = get_directory_contents(directory);
+    std::vector<std::string> old_files;
+    std::for_each(sgfs.begin(), sgfs.end(), [&old_files](auto& sgf) {old_files.emplace_back(sgf.filename); });
+    std::transform(sgfs.begin(), sgfs.end(), old_files.begin(), [](auto& sgf) {return sgf.filename.substr(sgf.filename.find_last_of('/') + 1); });
+    std::sort(old_files.begin(), old_files.end());
+    files.erase(std::remove_if(files.begin(), files.end(), [this, &old_files](auto& string) {
+        bool is_sgf = string.find(".sgf") != std::string::npos;
+        bool already_in_table = std::find(old_files.begin(), old_files.end(), string) != old_files.end();
+        return !is_sgf || already_in_table;
+    }), files.end());
+    beginInsertRows(QModelIndex(), sgfs.size(), sgfs.size() + files.size() - 1);
+    for (const auto& file : files) {
+        sgfs.emplace_back(directory + "/" + file);
+    }
+    endInsertRows();
+}
 
 int SgfTableModel::rowCount(const QModelIndex& parent) const {
     return sgfs.size();
