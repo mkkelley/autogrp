@@ -44,6 +44,8 @@ void AnalyzeSgfDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 bool AnalyzeSgfDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) {
     if (event->type() != QEvent::MouseButtonRelease) return false;
 
+    if (index.column() <= 2) return false;
+
     QMouseEvent* e = static_cast<QMouseEvent*>(event);
     int click_x = e->x();
     int click_y = e->y();
