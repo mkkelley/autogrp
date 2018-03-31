@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <boost/algorithm/string.hpp>
+#include <QTimer>
 
 #include "logutils.h"
 #include "downloader.h"
@@ -25,6 +26,9 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     connect(downloader, &Downloader::downloader_finished, this, &MainWindow::downloader_finished);
     worker_thread.start();
 
+    update_queue_view_timer = new QTimer(this);
+    connect(update_queue_view_timer, &QTimer::timeout, ui->queueView, &QueueView::update_queue_view);
+    update_queue_view_timer->start(5000);
     setup_model();
 
     auto* delegate = new AnalyzeSgfDelegate(config, this);

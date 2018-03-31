@@ -29,6 +29,7 @@ private:
     Ui::MainWindow *ui;
     Config* config;
     QThread worker_thread;
+    QTimer* update_queue_view_timer;
     SgfTableModel* model;
 };
 
