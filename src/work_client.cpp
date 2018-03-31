@@ -77,8 +77,10 @@ std::optional<JobInfo> work_client::get_job() {
 
 void work_client::submit_job(const JobInfo& job_info) {
     std::string save_location_header = "server_save_location: " + job_info.server_save_location;
+    std::string analysis_bot_header = "analysis_bot: " + string_from_bot(job_info.bot);
     curl_slist* headers = NULL;
     headers = curl_slist_append(headers, save_location_header.c_str());
+    headers = curl_slist_append(headers, analysis_bot_header.c_str());
     std::string rsgf_path = job_info.client_save_location;
     boost::replace_first(rsgf_path, ".sgf", ".rsgf");
     std::string rsgf = load_file_into_string(rsgf_path);
