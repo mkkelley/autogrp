@@ -7,6 +7,30 @@
 #include <memory>
 #include <boost/thread.hpp>
 
+#include "work_queue.h"
+
 class Config;
-std::unique_ptr<boost::thread> start_server(Config*);
+
+class WorkServer {
+public:
+    WorkServer(Config* config);
+    virtual ~WorkServer() = default;
+    
+    /**
+     * Subclasses can override this function to do something when a job is served
+     */
+    virtual void job_served(const std::string&, BOT) {};
+
+    /**
+    * Subclasses can override this function to do something when a job is submitted
+    */
+    virtual void job_submitted(const std::string&, BOT) {};
+
+    std::unique_ptr<boost::thread> start();
+private:
+    template <typename T> void start_server_impl();
+    void start_server_impl_c();
+
+    Config* config;
+};
 

@@ -57,7 +57,8 @@ int main() {
     boost::asio::signal_set signals(io, SIGINT, SIGTERM);
     signals.async_wait(ctrl_handler);
     boost::thread timer_thread(boost::bind(&boost::asio::io_service::run, &io));
-    auto server_thread = start_server(&config);
+    WorkServer server(&config);
+    auto server_thread = server.start();
 
     if (config.run_local_worker) {
         work_client c(&client_config);

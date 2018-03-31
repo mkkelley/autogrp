@@ -13,7 +13,7 @@
 #include "work_queue.h"
 
 template <typename ServerTraits>
-void start_server_impl(Config* config) {
+void WorkServer::start_server_impl() {
     const static int pool_size = 1;
     restinio::run(
             restinio::on_thread_pool<ServerTraits>(pool_size)
@@ -36,6 +36,8 @@ void start_server_impl(Config* config) {
                                         std::string server_save_location = job.first.substr(0, job.first.size() - 4);
                                         server_save_location.append("_").append(string_from_bot(job.second)).append(".rsgf");
 
+                                        job_served(job.first, job.second);
+
                                         return request->create_response()
                                                 .append_header(restinio::http_field::server, "AutoGRP Job Server")
                                                 .append_header_date_field()
@@ -54,6 +56,8 @@ void start_server_impl(Config* config) {
                                     if (save_path.find(".rsgf") == std::string::npos) {
                                         return restinio::request_rejected();
                                     }
+                                    std::string analysis_bot = request->header().get_field("analysis_bot");
+                                    job_submitted(save_path, bot_from_string(analysis_bot));
                                     std::ofstream outfile(save_path, std::ios::binary);
                                     auto& body = request->body();
                                     outfile.write(body.c_str(), body.size());
@@ -69,12 +73,12 @@ void start_server_impl(Config* config) {
     );
 }
 
-void start_server_impl_c(Config* config) {
-    start_server_impl<restinio::default_traits_t>(config);
+void WorkServer::start_server_impl_c() {
+    start_server_impl<restinio::default_traits_t>();
 }
 
-std::unique_ptr<boost::thread> start_server(Config* config) {
-    return std::make_unique<boost::thread>(boost::bind(start_server_impl_c, config));
+std::unique_ptr<boost::thread> WorkServer::start() {
+    return std::make_unique<boost::thread>(boost::bind(&WorkServer::start_server_impl_c, this));
 }
 
-
+WorkServer::WorkServer(Config * config) : config(config) { }
