@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QAbstractItemModel>
 #include "sgf_table_model.h"
+#include "work_server_wrapper.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,13 +25,11 @@ public slots:
     void downloader_finished();
 
 private:
-    void setup_model();
-
     Ui::MainWindow *ui;
     Config* config;
     QThread worker_thread;
-    QTimer* update_queue_view_timer;
     SgfTableModel* model;
+    WorkServerWrapper work_server_wrapper;
 };
 
 class Downloader : public QObject {

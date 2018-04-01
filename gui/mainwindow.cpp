@@ -16,7 +16,9 @@
 MainWindow::MainWindow(Config* config, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    config(config)
+    config(config),
+    model(new SgfTableModel(config, this)),
+    work_server_wrapper(config)
 {
     ui->setupUi(this);
     Downloader* downloader = new Downloader(config);
@@ -25,11 +27,6 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     connect(ui->pushButton, &QPushButton::released, downloader, &Downloader::run_downloader);
     connect(downloader, &Downloader::downloader_finished, this, &MainWindow::downloader_finished);
     worker_thread.start();
-
-    update_queue_view_timer = new QTimer(this);
-    connect(update_queue_view_timer, &QTimer::timeout, ui->queueView, &QueueView::update_queue_view);
-    update_queue_view_timer->start(5000);
-    setup_model();
 
     auto* delegate = new AnalyzeSgfDelegate(config, this);
     ui->tableView->setItemDelegate(delegate);
@@ -40,6 +37,9 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
 
     connect(delegate, &AnalyzeSgfDelegate::analysis_requested, ui->queueView, &QueueView::submit_job);
     connect(downloader, &Downloader::downloader_finished, model, &SgfTableModel::update_table);
+
+    connect(work_server_wrapper.event_handler, &QWorkServer::job_served, ui->queueView, &QueueView::update_queue_view);
+    work_server_wrapper.start();
 }
 
 MainWindow::~MainWindow()
@@ -58,10 +58,6 @@ void MainWindow::on_pushButton_released()
 void MainWindow::downloader_finished() {
     ui->pushButton->setText("Run Downloader Now");
     ui->pushButton->setEnabled(true);
-}
-
-void MainWindow::setup_model() {
-    model = new SgfTableModel(config, this);
 }
 
 Downloader::Downloader(Config *config) : config(config) { }

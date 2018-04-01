@@ -14,8 +14,6 @@ int main(int argc, char** argv) {
     QApplication qapp(argc, argv);
     INIReader config_reader(config_path);
     Config config(&config_reader);
-    WorkServer server(&config);
-    server.start();
     MainWindow main_window(&config);
     main_window.show();
     return qapp.exec();
