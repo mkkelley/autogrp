@@ -38,8 +38,14 @@ MainWindow::MainWindow(Config* config, QWidget* parent) :
     connect(delegate, &AnalyzeSgfDelegate::analysis_requested, ui->queueView, &QueueView::submit_job);
     connect(downloader, &Downloader::downloader_finished, model, &SgfTableModel::update_table);
 
-    connect(work_server_wrapper.event_handler, &QWorkServer::job_served, ui->queueView, &QueueView::update_queue_view);
+    connect(work_server_wrapper.event_handler, &QWorkServer::job_served,
+            ui->queueView, &QueueView::update_queue_view);
     work_server_wrapper.start();
+
+    connect(work_server_wrapper.event_handler, &QWorkServer::job_served,
+            ui->progressView, &ProgressView::job_served);
+    connect(work_server_wrapper.event_handler, &QWorkServer::job_submitted,
+            ui->progressView, &ProgressView::job_submitted);
 }
 
 MainWindow::~MainWindow()
