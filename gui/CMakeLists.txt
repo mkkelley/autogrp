@@ -1,7 +1,9 @@
 
 
 find_package(Qt5Widgets)
-find_package(OpenGL)
+if (UNIX)
+	find_package(OpenGL)
+endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
