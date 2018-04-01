@@ -16,6 +16,9 @@ public:
     WorkServer(Config* config);
     virtual ~WorkServer() = default;
     
+    std::unique_ptr<boost::thread> start();
+
+protected:
     /**
      * Subclasses can override this function to do something when a job is served
      */
@@ -26,7 +29,6 @@ public:
     */
     virtual void job_submitted(const std::string&, BOT) {};
 
-    std::unique_ptr<boost::thread> start();
 private:
     template <typename T> void start_server_impl();
     void start_server_impl_c();
